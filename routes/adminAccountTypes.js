@@ -59,14 +59,19 @@ router.post('/', protectAdmin, async (req, res) => {
       isActive
     } = req.body;
     
-    // Check if code already exists
-    const existing = await AccountType.findOne({ code: code.toUpperCase() });
-    if (existing) {
+    // Check if code or name already exists
+    const existingCode = await AccountType.findOne({ code: code.toUpperCase() });
+    if (existingCode) {
       return res.status(400).json({ success: false, message: 'Account type code already exists' });
     }
     
+    const existingName = await AccountType.findOne({ name: name.trim() });
+    if (existingName) {
+      return res.status(400).json({ success: false, message: 'Account type name already exists' });
+    }
+    
     const accountType = await AccountType.create({
-      name,
+      name: name.trim(),
       code: code.toUpperCase(),
       description,
       minDeposit: minDeposit || 100,
